@@ -62,7 +62,16 @@ where the coefficients measure how capital and labour growth contribute to GDP g
 
 I first estimated a log-log regression in levels:
 
-$\ln Y_t = -321.393 + \0 \ln K_t + \alpha_L \ln L_t + u_t$, where residual $u_t$ is A
+$\hat{Y}  = -321.393 + 0.8355\K_{\text{bil}} + 0.0483\L_{\text{mil}}$
+
+where:
+
+- \(\hat{Y}_{\text{bil}}\) = predicted Ontario real GDP, in billions of dollars  
+- \(K_{\text{bil}}\) = capital stock, in billions of dollars  
+- \(L_{\text{mil}}\) = labour input, in millions of hours  
+- \(\beta_0 = -321.393\) is the intercept  
+- \(\beta_K = 0.8355\) is the estimated coefficient on capital  
+- \(\beta_L = 0.0483\) is the estimated coefficient on labour  
 
 This model fits the historical GDP path closely and has a very high adjusted $R^2$, but because the series shares strong trends identified through ADF testing, that fit is misleading. The model also showed substantial positive serial correlation in the residuals, so I did not use it for the simulation stage.
 
