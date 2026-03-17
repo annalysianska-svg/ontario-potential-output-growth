@@ -36,20 +36,7 @@ The historical model uses annual Ontario data from **1997 to 2023**, with dollar
   
 - **Immigrant share of the labour force**    
   Statistics Canada Table [**17-10-0121-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710012101) and [**14-10-0022-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410002201)
-  *Estimates of the number of non-permanent residents by type, quarterly* is used to capture temporary workers, specifically asylum seekers with work permits only, asylum seekers with both work and study permits, work permit holders, and temporary residents with both work and study permits. *Labour force characteristics by industry, monthly, unadjusted for seasonality* is used for the labour force measure at a monthly frequency, aligned with the quarterly immigrant-labour data to compute immigrants’ contribution to the labour force. Temporary workers are foreign nationals granted authorization to engage in paid work in Canada. As a result, it is reasonable to treat all work permit holders as part of the labour-force pool for the purposes of this paper, since holding (or applying for) a work permit signals an intention to participate in the labour market and actively seek employment. 
-
-## Why I chose these data
-
-I chose these series to match the production-function structure directly:
-
-- **Y** is Ontario real GDP, the output to be explained.
-- **K** is Ontario non-residential capital stock, which captures productive capital accumulation.
-- **L** is total hours worked, rather than just employment counts, because hours better capture changes in labour utilization.
-- **A** is treated in two different ways:
-  - in the historical regressions, TFP is treated as the unexplained residual in Solow-style fashion
-  - in the potential-output construction, I use the multifactor productivity index to build a smooth trend TFP path
-
-This choice lets the historical model stay close to the growth-accounting logic while keeping the potential-output path anchored in an observed productivity series rather than leaving all long-run productivity entirely inside regression residuals.
+  *Estimates of the number of non-permanent residents by type, quarterly* is used to capture temporary workers with work permits. *Labour force characteristics by industry, monthly, unadjusted for seasonality* is used for the labour force measure at a monthly frequency, aligned with the quarterly immigrant-labour data to compute immigrants’ contribution to the labour force. I believe it is reasonable to treat all work permit holders as part of the labour-force pool, since holding (or applying for) a work permit signals an intention to participate in the labour market and actively seek employment. 
 
 ## Methodology
 
@@ -57,21 +44,15 @@ This choice lets the historical model stay close to the growth-accounting logic 
 
 The project is based on a Cobb-Douglas production function:
 
-\[
-Y_t = A_t K_t^{\alpha_K} L_t^{\alpha_L}
-\]
+$Y_t = A_t K_t^{\alpha_K} L_t^{\alpha_L}$
 
 Taking logs gives:
 
-\[
-\ln Y_t = \ln A_t + \alpha_K \ln K_t + \alpha_L \ln L_t
-\]
+$ln Y_t = \ln A_t + \alpha_K \ln K_t + \alpha_L \ln L_t$
 
 Taking first differences gives the growth-rate form:
 
-\[
-\Delta \ln Y_t = g_0 + \alpha_K \Delta \ln K_t + \alpha_L \Delta \ln L_t + \varepsilon_t
-\]
+$\Delta \ln Y_t = g_0 + \alpha_K \Delta \ln K_t + \alpha_L \Delta \ln L_t + \varepsilon_t$
 
 where the coefficients measure how capital and labour growth contribute to GDP growth.
 
@@ -81,19 +62,15 @@ where the coefficients measure how capital and labour growth contribute to GDP g
 
 I first estimated a log-log regression in levels:
 
-\[
-\ln Y_t = c + \alpha_K \ln K_t + \alpha_L \ln L_t + u_t
-\]
+$\ln Y_t = -321.393 + \0 \ln K_t + \alpha_L \ln L_t + u_t$, where residual $u_t$ is A
 
-This model fits the historical GDP path closely and has a very high adjusted \(R^2\), but because the series share strong trends, that fit can be misleading. The model also showed substantial positive serial correlation in the residuals, so I did not use it for the simulation stage.
+This model fits the historical GDP path closely and has a very high adjusted $R^2$, but because the series shares strong trends identified through ADF testing, that fit is misleading. The model also showed substantial positive serial correlation in the residuals, so I did not use it for the simulation stage.
 
 ### Model 2: Log-first-differences model
 
 I then estimated a first-difference growth model:
 
-\[
-\Delta \ln Y_t = g_0 + \alpha_K \Delta \ln K_t + \alpha_L \Delta \ln L_t + \varepsilon_t
-\]
+$\Delta \ln Y_t = g_0 + \alpha_K \Delta \ln K_t + \alpha_L \Delta \ln L_t + \varepsilon_t$
 
 This specification is more useful for this project because:
 
