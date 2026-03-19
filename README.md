@@ -1,7 +1,7 @@
 # Ontario Potential Output Growth
 
 ## Overview
-This project estimates Ontario’s potential output growth using a Cobb-Douglas production function and scenario analysis.
+This project estimates Ontario’s potential output growth in 2025-2035 using a Cobb-Douglas production function and scenario analysis on immigrant labour and tariff impacts.
 
 ## Research question
 What is the potential growth in GDP for Ontario, and how might it change under alternative immigration and trade disruption scenarios?
@@ -22,8 +22,8 @@ The historical model uses annual Ontario data from **1997 to 2023**, with dollar
 
 - **Labour input (L)**  
   Statistics Canada Table [**36-10-0480-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610048001)  
-  *Labour productivity and related measures by business sector industry and by non-commercial activity consistent with the industry accounts*  
-  I use hours worked for all jobs as the main labour proxy.The manufacturing hours profile over 2019-2022 (Covid-19) is used as an empirical template for a trade shock.
+  *Labour productivity and related measures by business sector, industry, and by non-commercial activity consistent with the industry accounts*  
+  I use hours worked for all jobs as the main labour proxy. The manufacturing hours profile over 2019-2022 (Covid-19) is used as an empirical template for a trade shock.
 
 - **Multifactor productivity index (A for potential-output construction)**  
   Statistics Canada Table [**36-10-0208-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610020801)  
@@ -44,17 +44,17 @@ The historical model uses annual Ontario data from **1997 to 2023**, with dollar
 
 The project is based on a Cobb-Douglas production function:
 
-$Y_t = A_t K_t^{\alpha_K} L_t^{\alpha_L}$
+$Y_t = A_t K_t^{\alpha} L_t^{(1-\alpha)}$
 
 Taking logs gives:
 
-$ln Y_t = \ln A_t + \alpha_K \ln K_t + \alpha_L \ln L_t$
+$ln Y_t = \ln A_t + \alpha \ln K_t + \(1-\alpha) \ln L_t$
 
-Taking first differences gives the growth-rate form:
+Taking first differences gives the growth rate in percentage form (i.e. percentage change):
 
-$\Delta \ln Y_t = g_0 + \alpha_K \Delta \ln K_t + \alpha_L \Delta \ln L_t + \varepsilon_t$
+$\\%\Delta \ln Y_t = \\% \Delta \ln A_t + \alpha \\% \Delta \ln K_t + (1-\alpha) \\% \Delta \ln L_t$
 
-where the coefficients measure how capital and labour growth contribute to GDP growth.
+where the coefficients measure how capital and labour growth contribute to GDP growth. A is productivity, which takes the form of residual in regressions.
 
 ## 2. Historical regressions: two models tried
 
@@ -62,42 +62,37 @@ where the coefficients measure how capital and labour growth contribute to GDP g
 
 I first estimated a log-log regression in levels:
 
-$\hat{Y}  = -321.393 + 0.8355\K_{\text{bil}} + 0.0483\L_{\text{mil}}$
+$$
+\hat{Y}_{\text{bil}} = -321.393 + 0.8355K_{\text{bil}} + 0.0483L_{\text{mil}}
+$$
 
 where:
 
-- \(\hat{Y}_{\text{bil}}\) = predicted Ontario real GDP, in billions of dollars  
-- \(K_{\text{bil}}\) = capital stock, in billions of dollars  
-- \(L_{\text{mil}}\) = labour input, in millions of hours  
-- \(\beta_0 = -321.393\) is the intercept  
-- \(\beta_K = 0.8355\) is the estimated coefficient on capital  
-- \(\beta_L = 0.0483\) is the estimated coefficient on labour  
+- $\hat{Y}_{\text{bil}}$ = predicted Ontario real GDP, in billions of dollars  
+- $K_{\text{bil}}\$ = capital stock, in billions of dollars  
+- $L_{\text{mil}}\$ = labour input, in millions of hours  
+- $\beta_0 = -321.393$ is the intercept and a residual A in this case 
 
-This model fits the historical GDP path closely and has a very high adjusted $R^2$, but because the series shares strong trends identified through ADF testing, that fit is misleading. The model also showed substantial positive serial correlation in the residuals, so I did not use it for the simulation stage.
+An adjusted R-squared is 0.994, which is extremely high but not unusual for regressions using historical GDP series with strong common trends. The estimated output elasticities of capital and labour are both below one, implying decreasing returns to scale in the Cobb-Douglas production function, while total factor productivity A is the intercept and is therefore treated as a constant factor. However, the Durbin-Watson statistic is 0.616 (see the output), well below the benchmark value of 2, indicating substantial positive serial correlation in the residuals. Meaning, the tight fit of the regression may be explained by common trends among the series rather than relationships. 
 
-### Model 2: Log-first-differences model
+### Model 2: Log-first-differences (i.e. percentage change)
 
-I then estimated a first-difference growth model:
+I then estimated a first-difference growth model, linking annual percentage changes in real output to percentage changes in capital and labour:
 
-$\Delta \ln Y_t = g_0 + \alpha_K \Delta \ln K_t + \alpha_L \Delta \ln L_t + \varepsilon_t$
+$$
+\\%\Delta \widehat{Y}_t = 0.1486 + 0.8764 \\%\Delta K_t + 0.4857 \\%\Delta L_t
+$$
 
-This specification is more useful for this project because:
+where:
 
-- it reduces the problems created by trending level series
-- it improves the autocorrelation issue relative to the log-log model
-- its coefficients are directly interpretable for simulations of changes in labour and capital growth
+- $\\%\Delta \widehat{Y}_t$ = predicted percentage change in output
+- $\\%\Delta K_t$ = percentage change in capital
+- $\\%\Delta L_t$ = percentage change in labour
+- $\beta_0 = 0.1486$ is the intercept and a residual A
+
+For example, holding labour growth constant, a 1% increase in capital growth is associated with approximately a 0.876% increase in GDP growth. The Durbin-Watson statistic for this model is 1.228, which represents a substantial improvement relative to the log-log regression, although the adjusted R-squared falls to 0.707, which remains statistically and economically meaningful. The model captures the main pattern of accelerations and slowdowns in GDP growth, even if it does not track individual observations as tightly as the levels regression.
 
 This is the model used for the remainder of the project.
-
-## Estimated coefficients used in the potential-output model
-
-From the log-first-difference regression:
-
-- \(\alpha_K = 0.8764\)
-- \(\alpha_L = 0.4857\)
-- intercept \(g_0 = 0.0015\)
-
-These coefficients are then used to construct and simulate potential output.
 
 ## Potential output construction
 
