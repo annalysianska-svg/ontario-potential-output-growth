@@ -10,8 +10,6 @@ What is the potential growth in GDP for Ontario, and how might it change under a
 
 The historical model uses annual Ontario data from **1997 to 2023**, with dollar variables expressed in **2017 chained dollars** to account for inflation and depreciation. Below are the table sources of the data. However, the data section of the file also includes organized data tables that I cleaned in Excel.
 
-### Main variables and sources
-
 - **Real GDP (Y)**  
   Statistics Canada Table [**36-10-0222-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610022201)  
   *Gross domestic product, expenditure-based, provincial and territorial, annual (x 1,000,000)*
@@ -73,7 +71,9 @@ where:
 - $L_{\text{mil}}\$ = labour input, in millions of hours  
 - $\beta_0 = -321.393$ is the intercept and a residual A in this case 
 
-An adjusted R-squared is 0.994, which is extremely high but not unusual for regressions using historical GDP series with strong common trends. The estimated output elasticities of capital and labour are both below one, implying decreasing returns to scale in the Cobb-Douglas production function, while total factor productivity A is the intercept and is therefore treated as a constant factor. However, the Durbin-Watson statistic is 0.616 (see the output), well below the benchmark value of 2, indicating substantial positive serial correlation in the residuals. Meaning, the tight fit of the regression may be explained by common trends among the series rather than relationships. 
+> An adjusted R-squared is 0.994, which is extremely high but not unusual for regressions using historical GDP series with strong common trends. The estimated output elasticities of capital and labour are both below one, implying decreasing returns to scale in the Cobb-Douglas production function, while total factor productivity A is the intercept and is therefore treated as a constant factor. However, the Durbin-Watson statistic is 0.616 (see the output), well below the benchmark value of 2, indicating substantial positive serial correlation in the residuals.
+
+Meaning, the tight fit of the regression may be explained by common trends among the series rather than relationships, so an alternative model is regressed.
 
 ### Model 2: Log-first-differences (i.e. percentage change)
 
@@ -90,68 +90,59 @@ where:
 - $\\%\Delta L_t$ = percentage change in labour
 - $\beta_0 = 0.1486$ is the intercept and a residual A
 
-For example, holding labour growth constant, a 1% increase in capital growth is associated with approximately a 0.876% increase in GDP growth. The Durbin-Watson statistic for this model is 1.228, which represents a substantial improvement relative to the log-log regression, although the adjusted R-squared falls to 0.707, which remains statistically and economically meaningful. The model captures the main pattern of accelerations and slowdowns in GDP growth, even if it does not track individual observations as tightly as the levels regression.
+> For example, holding labour growth constant, a 1% increase in capital growth is associated with approximately a 0.876% increase in GDP growth.
+> The Durbin-Watson statistic for this model is 1.228, which represents a substantial improvement relative to the log-log regression, although the adjusted R-squared falls to 0.707, which remains statistically and economically meaningful. The model captures the main pattern of accelerations and slowdowns in GDP growth, even if it does not track individual observations as tightly as the levels regression. Moreover, the fit improves toward the end of the sample.
 
-Moreover, the fit improves toward the end of the sample. For these reasons, the log-first-differences model is used in the remainder of the paper to obtain the capital and labour coefficients that are applied in the growth-rate simulations and then mapped back into the level series.
+For these reasons, the log-first-differences model is used to obtain the capital and labour coefficients that are applied in the growth-rate simulations and then mapped back into the level series.
 
-## Potential output construction
+## 3. Potential output construction
 
-Potential output is built from smooth “best-case” factor paths rather than actual year-to-year series.
+A baseline estimate of Ontario’s potential output is constructed and used to assess how far the economy has operated above or below capacity over time and how future shocks may affect that path. 
 
-### Potential capital
+### Potential Capital K
 
-Potential capital is constructed by taking the actual capital stock in the base year **1997** and growing it forward using the **average log growth rate of capital** over the sample:
+Potential capital K is constructed by taking the actual Ontario non-residential capital stock in the base year 1997 and then growing it forward at the average log growth rate of capital observed over the full sample period.
 
-\[
-K_t^{pot} = K_0 \cdot e^{\bar g_K (t-t_0)}
-\]
+$$K_t^{pot} = K_0 \cdot e^{\bar g_K (t-t_0)}\$$
 
-### Potential labour
+So K follows a smooth exponential trend rather than the year-to-year fluctuations in the data.
 
-Potential labour is built in two steps.
+### Potential Labour L
 
-First, actual hours worked are converted into a **full-employment hours** series using the lowest unemployment rate observed in the sample, **5.5% in 2019**:
+Potential labour is built in two steps:
 
-\[
-L^{FE}_t = L_t \cdot \frac{1-u^*}{1-u_t}
-\]
+First, actual hours worked are converted into a full-employment hours series using the lowest unemployment rate observed in the sample, **5.5% in 2019**. 
+
+$$L^{FE}_t = L_t \cdot \frac{1-u^*}{1-u_t}\$$
 
 where:
 
-- \(u^* = 0.055\)
-- \(u_t\) is the actual unemployment rate in year \(t\)
+- $\(u^* = 0.055\)$ i.e. 5.5%
+- $\(u_t\)$ is the actual unemployment rate in a given year
 
 Then that full-employment series is smoothed using its average log growth rate from the base year:
 
-\[
-L_t^{pot} = L^{FE}_0 \cdot e^{\bar g_{L^{FE}} (t-t_0)}
-\]
+$$L_t^{pot} = L^{FE}_0 \cdot e^{\bar g_{L^{FE}} (t-t_0)}$$
 
-This gives a labour trend consistent with operating at the sample’s best unemployment outcome rather than with cyclical slack.
+>**Why 5.5%?** My reasoning was that if natural unemployment is always present in the economy (frictional, structural, and seasonal), then the lowest unemployment rate observed in the historical data should include that stable natural unemployment, while minimizing cyclical unemployment. Thus, giving the "best case scenario" while keeping it realistic to the economy's natural state.
 
-### Potential TFP
+### Potential TFP, i.e. A
 
-For the potential-output path, TFP is not taken from regression residuals. Instead, I use the observed multifactor productivity index to estimate an average log productivity growth rate and then construct a smooth trend:
+TFP is not taken from regression residuals. Instead, I use the multifactor productivity index (from Statistics Canada) to estimate an average log productivity growth rate and then construct a smooth trend:
 
-\[
-A_t^{pot} = A_0 \cdot e^{\bar g_A (t-t_0)}
-\]
+$$A_t^{pot} = A_0 \cdot e^{\bar g_A (t-t_0)}$$
 
-The base-year level of potential TFP is backed out residually from the production function.
+The approach is similar to that of potential capital. However, the initial level of A in the base year is calculated as a residual of Y, that is, left after deducting K and L.
 
 ### Potential output formula
 
 Finally, potential output is calculated as:
 
-\[
-Y_t^{pot} = A_t^{pot} \left(K_t^{pot}\right)^{\alpha_K} \left(L_t^{pot}\right)^{\alpha_L}
-\]
+$$Y_t^{pot} = A_t^{pot} \left(K_t^{pot}\right)^{\alpha_K} \left(L_t^{pot}\right)^{\alpha_L}$$
 
 and the output gap is:
 
-\[
-\text{Gap}_t = 100 \times \frac{Y_t - Y_t^{pot}}{Y_t^{pot}}
-\]
+$$\text{Gap}_t = 100 \times \frac{Y_t - Y_t^{pot}}{Y_t^{pot}}$$
 
 ## Scenarios
 
