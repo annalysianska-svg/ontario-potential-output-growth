@@ -31,11 +31,11 @@ The historical model uses annual Ontario data from **1997 to 2023**, with dollar
   Total Factor Productivity has been obtained from the table to estimate the potential output. However, the historical regression does not use this measure, but rather considers TFP as a Solow’s residual, the error term.
     
 - **Unemployment rate**  
-  Statistics Canada Table [**14-10-0023-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410002301)
+  Statistics Canada Table [**14-10-0023-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410002301)  
   *Labour force characteristics by industry, annual (x 1,000)*
   
-- **Immigrant share of the labour force**    
-  Statistics Canada Table [**17-10-0121-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710012101) and [**14-10-0022-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410002201)
+- **Immigrant share of the labour force**     
+  Statistics Canada Table [**17-10-0121-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710012101) and [**14-10-0022-01**](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410002201)  
   *Estimates of the number of non-permanent residents by type, quarterly* is used to capture temporary workers with work permits. *Labour force characteristics by industry, monthly, unadjusted for seasonality* is used for the labour force measure at a monthly frequency, aligned with the quarterly immigrant-labour data to compute immigrants’ contribution to the labour force. I believe it is reasonable to treat all work permit holders as part of the labour-force pool, since holding (or applying for) a work permit signals an intention to participate in the labour market and actively seek employment. 
 
 ## Methodology
@@ -92,7 +92,7 @@ where:
 
 For example, holding labour growth constant, a 1% increase in capital growth is associated with approximately a 0.876% increase in GDP growth. The Durbin-Watson statistic for this model is 1.228, which represents a substantial improvement relative to the log-log regression, although the adjusted R-squared falls to 0.707, which remains statistically and economically meaningful. The model captures the main pattern of accelerations and slowdowns in GDP growth, even if it does not track individual observations as tightly as the levels regression.
 
-This is the model used for the remainder of the project.
+Moreover, the fit improves toward the end of the sample. For these reasons, the log-first-differences model is used in the remainder of the paper to obtain the capital and labour coefficients that are applied in the growth-rate simulations and then mapped back into the level series.
 
 ## Potential output construction
 
