@@ -1,7 +1,7 @@
 # Ontario Potential Output Growth
 
 ## Overview
-This project estimates Ontario’s potential output growth in 2025-2035 using a Cobb-Douglas production function and scenario analysis on immigrant labour and tariff impacts.
+This project builds a regression on historical economic data to estimate Ontario’s potential output over the year and its potential growth in 2025-2035 using a Cobb-Douglas production function. Additionally, there is scenario analysis on immigrant labour and tariff impacts, with Covid-19 as a stand-in for manufacturing hours reduction. I used Python for data analysis and visualisations, as well as Excel for basic data cleaning and preparation.
 
 ## Research question
 What is the potential growth in GDP for Ontario, and how might it change under alternative immigration and trade disruption scenarios?
@@ -42,15 +42,15 @@ The historical model uses annual Ontario data from **1997 to 2023**, with dollar
 
 The project is based on a Cobb-Douglas production function:
 
-$Y_t = A_t K_t^{\alpha} L_t^{(1-\alpha)}$
+$$Y_t = A_t K_t^{\alpha} L_t^{(1-\alpha)}$$
 
 Taking logs gives:
 
-$ln Y_t = \ln A_t + \alpha \ln K_t + \(1-\alpha) \ln L_t$
+$$ln Y_t = \ln A_t + \alpha \ln K_t + \(1-\alpha) \ln L_t$$
 
 Taking first differences gives the growth rate in percentage form (i.e. percentage change):
 
-$\\%\Delta \ln Y_t = \\% \Delta \ln A_t + \alpha \\% \Delta \ln K_t + (1-\alpha) \\% \Delta \ln L_t$
+$$\\%\Delta \ln Y_t = \\% \Delta \ln A_t + \alpha \\% \Delta \ln K_t + (1-\alpha) \\% \Delta \ln L_t$$
 
 where the coefficients measure how capital and labour growth contribute to GDP growth. A is productivity, which takes the form of residual in regressions.
 
@@ -117,8 +117,8 @@ $$L^{FE}_t = L_t \cdot \frac{1-u^*}{1-u_t}\$$
 
 where:
 
-- $\(u^* = 0.055\)$ i.e. 5.5%
-- $\(u_t\)$ is the actual unemployment rate in a given year
+- $u^* = 0.055\$ i.e. 5.5%
+- $u_t\$ is the actual unemployment rate in a given year
 
 Then that full-employment series is smoothed using its average log growth rate from the base year:
 
@@ -134,100 +134,320 @@ $$A_t^{pot} = A_0 \cdot e^{\bar g_A (t-t_0)}$$
 
 The approach is similar to that of potential capital. However, the initial level of A in the base year is calculated as a residual of Y, that is, left after deducting K and L.
 
+$$
+\ln A_0^{pot} = \ln Y_0 - 0.8764 \ln K_0^{pot} - 0.4857 \ln L_0^{pot}
+$$
+
 ### Potential output formula
 
-Finally, potential output is calculated as:
+Finally, potential output in Cobb-Douglas form is calculated as:
 
-$$Y_t^{pot} = A_t^{pot} \left(K_t^{pot}\right)^{\alpha_K} \left(L_t^{pot}\right)^{\alpha_L}$$
+$$
+Y_t^{pot} = A_t^{pot}\left(K_t^{pot}\right)^{0.8764}\left(L_t^{pot}\right)^{0.4857}
+$$
 
-and the output gap is:
+and the output gap is the standard percentage deviation formula:
 
 $$\text{Gap}_t = 100 \times \frac{Y_t - Y_t^{pot}}{Y_t^{pot}}$$
 
-## Scenarios
+## 4. Scenario analysis
+## Baseline projection and scenario simulations
 
-## Baseline projection, 2025–2035
+This section projects Ontario’s potential output from **2025 to 2035** using the estimated Cobb-Douglas production function and then simulates how immigration restrictions and tariff-related trade disruptions may alter that path.
 
-The baseline extends the historical average growth trends of capital, full-employment labour, and TFP forward into the next decade.
+### Estimated production function
 
-Average annual projected potential GDP growth under the baseline:
+The historical elasticities are estimated from the log-first-difference regression:
 
-- **2.85% per year**
+$$
+\Delta \ln Y_t = g_0 + \alpha_K \Delta \ln K_t + \alpha_L \Delta \ln L_t
+$$
 
-## Immigration scenarios
+with estimated coefficients:
 
-To model immigration-related labour-force effects, I calculate the share of Ontario’s labour force accounted for by temporary residents using quarterly non-permanent resident categories aligned with labour-force data.
+- $\alpha_K = 0.8764$
+- $\alpha_L = 0.4857$
 
-### Scenario 1: IRCC-style adjustment
+These coefficients are then used to project output under the baseline and under the alternative scenarios.
 
-The temporary-resident share is reduced from **6.5% to 5%** over three years, then held constant.
+## 1. Baseline projection
 
-Average annual projected potential GDP growth:
+The baseline projection extends the latest observed values of productivity, capital, and labour forward from **2023 to 2035** using their **average pre-2020 log growth rates**, specifically over **2010 to 2019**. In the code, these average growth rates are calculated as:
 
-- **2.78% per year**
+$$
+g_A = \overline{\Delta \ln A_t}, \qquad
+g_K = \overline{\Delta \ln K_t}, \qquad
+g_L = \overline{\Delta \ln L_t}
+\quad \text{for } t \in [2010,2019]
+$$
 
-### Scenario 2: Progressive tightening
+Then, starting from the last observed year, each factor is projected forward recursively:
 
-The temporary-resident share continues to decline proportionally every year beyond 2024.
+$$
+A_t^{base} = A_{t-1}^{base} e^{g_A}
+$$
 
-Average annual projected potential GDP growth:
+$$
+K_t^{base} = K_{t-1}^{base} e^{g_K}
+$$
 
-- **2.59% per year**
+$$
+L_t^{base} = L_{t-1}^{base} e^{g_L}
+$$
 
-These immigration scenarios mainly flatten the slope of the potential-output path rather than causing a sharp one-time collapse.
+Baseline output is then calculated using the Cobb-Douglas function:
 
-## Tariff scenarios
+$$
+Y_t^{base} = A_t^{base}\left(K_t^{base}\right)^{0.8764}\left(L_t^{base}\right)^{0.4857}
+$$
 
-To approximate tariff-related trade disruption, I use the Covid-era decline and recovery of **manufacturing hours** as an empirical stand-in shock.
+### Baseline result
 
-Manufacturing hours relative to 2019:
+Under this projection, the average annual potential GDP growth rate over **2025 to 2035** is:
 
-- **2020 / 2019 = 0.848**
-- **2021 / 2019 = 0.908**
-- **2022 / 2019 = 0.963**
+- **Baseline: 2.85% per year**
 
-Manufacturing’s share of total hours in 2019:
+This serves as the reference path against which the immigration and tariff simulations are compared.
 
-- **10.44%**
 
-### Scenario 1: Short-term tariff shock
+## 2. Immigration scenarios
 
-Covid-sized manufacturing losses are applied cumulatively from **2025 to 2028**, then partially reversed using the observed recovery pattern.
+The immigration scenarios begin with the baseline and then adjust only the labour input. The starting point is the share of Ontario’s labour force associated with selected temporary-resident categories in **2023Q4**:
 
-Estimated GDP effect:
+$$
+\text{imm\_share\_base}=\frac{L^{imm}_{2023}}{LF_{2023}}
+$$
 
-- trough of about **2.5% below baseline** in **2028**
-- gap narrows to about **1.0% below baseline** by **2035**
+The policy target is based on reducing the temporary-resident ratio from **6.5%** to **5.0%** over three years. The proportional target factor is:
 
-### Scenario 2: Long-term tariff shock
+$$
+\frac{5.0}{6.5}=0.7692
+$$
 
-Covid-sized shocks are applied repeatedly from **2025 onward**, representing a persistent trade-cost burden without sufficient adjustment.
+To spread this reduction evenly in proportional terms over three years, the code calculates the annual log reduction rate as:
 
-Estimated GDP effect:
+$$
+g_{\text{share}}=\frac{\ln(5.0/6.5)}{3}\approx -0.0874
+$$
 
-- GDP reaches about **4.35% below baseline** by **2035**
+which implies an annual multiplier of:
 
-## Selected results
+$$
+m=e^{g_{\text{share}}}\approx 0.9163
+$$
 
-- Historical average actual GDP growth: **2.36% per year**
-- Historical average potential GDP growth: **2.45% per year**
-- Baseline potential GDP growth, 2025–2035: **2.85% per year**
-- Immigration restrictions reduce potential growth modestly but persistently
-- Tariff-style shocks create sharper level losses, especially if they persist
+So during the adjustment phase, the temporary-resident share is multiplied by approximately **0.9163 each year**, meaning it falls by about **8.37% relative to the previous year**.
 
-## Code samples
+### IRCC-style scenario
 
-### 1. ADF stationarity tests
+In the IRCC-style scenario, this annual multiplier is applied from **2025 to 2027**, and then the share is held constant at the new lower level from **2028 through 2035**.
 
-```python
-import pandas as pd
-from statsmodels.tsa.stattools import adfuller
+The share multiplier is:
 
-df = df_input.copy()
-df = df.set_index('Year')
-df = df[['Y', 'K', 'L']].astype(float)
+$$
+\text{share\_multiplier}_{ircc,t}=
+\begin{cases}
+1, & t \leq 2024 \\
+m^{\,t-2024}, & 2025 \leq t \leq 2027 \\
+m^3 = \frac{5.0}{6.5}=0.7692, & 2028 \leq t \leq 2035
+\end{cases}
+$$
 
-for c in ['Y', 'K', 'L']:
-    series = df[c].dropna()
-    res = adfuller(series, regression='ct', autolag='AIC')
-    print(c, res[0], res[1])
+This means the reduction stops after 2027. In simple terms, if the ratio starts at **6.5**, then it moves approximately like this:
+
+- 2024: 6.5
+- 2025: $6.5 \times 0.9163 \approx 5.96$
+- 2026: $5.96 \times 0.9163 \approx 5.46$
+- 2027: $5.46 \times 0.9163 \approx 5.00$
+- 2028 to 2035: remains at **5.00**
+
+This share adjustment is then converted into a labour multiplier:
+
+$$
+\text{labour\_multiplier}_{ircc,t}
+=
+1-\text{imm\_share\_base}\left(1-\text{share\_multiplier}_{ircc,t}\right)
+$$
+
+and applied to baseline labour:
+
+$$
+L_t^{ircc}=L_t^{base}\cdot \text{labour\_multiplier}_{ircc,t}
+$$
+
+Output under the IRCC-style scenario is then:
+
+$$
+Y_t^{ircc}=A_t^{base}\left(K_t^{base}\right)^{0.8764}\left(L_t^{ircc}\right)^{0.4857}
+$$
+
+Under this scenario, the average annual potential GDP growth rate over **2025 to 2035** is:
+
+- **IRCC-style scenario: 2.78% per year**
+
+### Progressive scenario
+
+In the progressive scenario, the **same annual multiplier** continues to be applied every year from **2025 all the way to 2035**. Unlike the IRCC-style case, the reduction does not stop after 2027.
+
+The share multiplier is therefore:
+
+$$
+\text{share\_multiplier}_{prog,t}=
+\begin{cases}
+1, & t \leq 2024 \\
+m^{\,t-2024}, & 2025 \leq t \leq 2035
+\end{cases}
+$$
+
+So the ratio keeps shrinking throughout the full horizon. Starting from **6.5** in 2024, it moves approximately like this:
+
+- 2024: 6.50
+- 2025: $6.50 \times 0.9163 \approx 5.96$
+- 2026: $5.96 \times 0.9163 \approx 5.46$
+- 2027: $5.46 \times 0.9163 \approx 5.00$
+- 2028: $5.00 \times 0.9163 \approx 4.58$
+- 2029: $4.58 \times 0.9163 \approx 4.20$
+- 2030: $4.20 \times 0.9163 \approx 3.85$
+- 2031: $3.85 \times 0.9163 \approx 3.53$
+- 2032: $3.53 \times 0.9163 \approx 3.24$
+- 2033: $3.24 \times 0.9163 \approx 2.97$
+- 2034: $2.97 \times 0.9163 \approx 2.72$
+- 2035: $2.72 \times 0.9163 \approx 2.49$
+
+Thus, by **2035**, the implied temporary-resident ratio falls to roughly **2.49**, compared with **5.00** in the IRCC-style scenario.
+
+This is again translated into a labour multiplier:
+
+$$
+\text{labour\_multiplier}_{prog,t}
+=
+1-\text{imm\_share\_base}\left(1-\text{share\_multiplier}_{prog,t}\right)
+$$
+
+and applied to labour:
+
+$$
+L_t^{prog}=L_t^{base}\cdot \text{labour\_multiplier}_{prog,t}
+$$
+
+Output under the progressive scenario is then:
+
+$$
+Y_t^{prog}=A_t^{base}\left(K_t^{base}\right)^{0.8764}\left(L_t^{prog}\right)^{0.4857}
+$$
+
+Under this scenario, the average annual potential GDP growth rate over **2025 to 2035** is:
+
+- **Progressive scenario: 2.59% per year**
+
+### Immigration scenario gaps relative to baseline
+
+The percentage deviation from the baseline is calculated as a standard percentage deviation:
+
+$$
+\text{gap}_{ircc,t}=100\times\frac{Y_t^{ircc}-Y_t^{base}}{Y_t^{base}}
+$$
+
+$$
+\text{gap}_{prog,t}=100\times\frac{Y_t^{prog}-Y_t^{base}}{Y_t^{base}}
+$$
+
+### Interpretation
+
+The key difference between the two immigration scenarios is that the **IRCC-style scenario stops tightening after 2027**, while the **progressive scenario keeps applying the same annual reduction multiplier through 2035**. As a result, the IRCC-style scenario creates a one-time downward shift in labour supply growth, whereas the progressive scenario creates a continuously compounding drag on labour input and therefore a larger long-run slowdown in projected output growth.
+
+## 3. Tariff scenarios
+
+The tariff scenarios also begin from the baseline, but instead of changing immigration-related labour supply, they impose a trade-disruption shock using the **Covid-19 collapse and recovery of manufacturing hours** as an empirical stand-in for a major tariff shock.
+
+The logic is that pandemic-era border closures and logistical disruptions effectively raised trade costs and restricted the movement of goods, especially in manufacturing. This makes the Covid manufacturing-hours profile a useful benchmark for simulating how renewed tariffs might affect Ontario’s production structure.
+
+From the data:
+
+- manufacturing hours in **2020** fall to **84.8%** of their **2019** level
+- manufacturing hours in **2021** recover to **90.8%** of their **2019** level
+- manufacturing hours in **2022** recover to **96.3%** of their **2019** level
+
+So the key observed shock and recovery factors are:
+
+$$
+\frac{H_{2020}^{mfg}}{H_{2019}^{mfg}}=0.848
+$$
+
+$$
+\frac{H_{2021}^{mfg}}{H_{2019}^{mfg}}=0.908
+$$
+
+$$
+\frac{H_{2022}^{mfg}}{H_{2019}^{mfg}}=0.963
+$$
+
+This implies an average annual recovery rate of about:
+
+- **6.6% per year** between 2020 and 2022
+
+Manufacturing accounts for approximately:
+
+- **10.4% of total hours in 2019**
+
+These observed manufacturing shocks are then mapped into the baseline labour path to simulate how a severe tariff shock would feed through to Ontario output.
+
+### 3.1 Short-term tariff scenario
+
+In the **short-term tariff scenario**, Covid-sized manufacturing losses are applied **cumulatively from 2025 to 2028**, interpreted in the paper as the period of a **tariff-intensive U.S. administration ending in 2028 with the presidential elections**.
+
+After 2028, the shock is partially reversed using the observed Covid-era recovery rate. In other words:
+
+- 2025 to 2028: manufacturing losses accumulate
+- after 2028: manufacturing hours recover gradually
+
+This creates a temporary but meaningful drag on output.
+
+#### Short-term tariff result
+
+Under this scenario:
+
+- Ontario GDP reaches a trough of about **2.5% below baseline in 2028**
+- the gap then narrows to roughly **1.0% below baseline by 2035**
+
+So this scenario represents a **temporary but significant tariff shock**, followed by gradual adjustment and recovery.
+
+### 3.2 Long-term tariff scenario
+
+In the **long-term tariff scenario**, the Covid-sized manufacturing shock is applied **every year from 2025 onward**, so the manufacturing factor continues to decline instead of recovering.
+
+This means the labour effect keeps worsening rather than stabilizing. By the end of the projection horizon:
+
+- the aggregate labour factor is about **9% below baseline by 2035**
+- GDP is around **4.3% below baseline by 2035**
+
+This is a deliberately severe reference case. It does not assume that firms successfully diversify suppliers or redirect trade flows in response to the shock.
+
+### Tariff scenario gaps relative to baseline
+
+The percentage gap for the tariff scenarios is likewise interpreted as a standard percentage deviation from the no-tariff baseline:
+
+$$
+\text{gap}_{tariff,t}=100\times\frac{Y_t^{tariff}-Y_t^{base}}{Y_t^{base}}
+$$
+
+---
+
+## 4. Summary of results
+
+### Average annual growth rates, 2025 to 2035
+
+- **Baseline:** 2.85%
+- **IRCC-style scenario:** 2.78%
+- **Progressive scenario:** 2.59%
+
+### Tariff scenario results
+
+- **Short-term tariff scenario:** GDP trough about **2.5% below baseline in 2028**, narrowing to about **1.0% below baseline by 2035**
+- **Long-term tariff scenario:** GDP about **4.3% below baseline by 2035**, with aggregate labour input about **9% below baseline**
+
+### Interpretation
+
+The immigration scenarios mainly flatten the slope of Ontario’s potential-output path by reducing labour-force growth. The IRCC-style case produces a modest slowdown because the temporary-resident share declines only once and then stabilizes. The progressive case produces a larger slowdown because the same proportional reduction continues every year.
+
+The tariff scenarios, by contrast, generate sharper level effects. Because they are concentrated in manufacturing and other trade-exposed sectors, they push output below the no-tariff baseline more abruptly. The short-term tariff scenario allows for recovery after the 2028 U.S. presidential election cycle, while the long-term scenario assumes that trade barriers remain in place and continue to drag on output throughout the full horizon.
